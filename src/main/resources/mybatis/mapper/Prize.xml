@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.luckDraw.mapper.PrizeMapper">
+
+    <select id="findPrize" resultType="com.example.luckDraw.model.TkPrize">
+        SELECT
+            tp.id,
+            tp.prize_name AS prizeName,
+            tp.prize,
+            tp.prize_image AS prizeImage,
+            tp.prize_count AS prizeCount,
+            tp.draw_count AS drawCount,
+            tp.activity_id AS activitieId,
+            tp.group_num AS groupNum,
+            tp.create_time AS createTime,
+            tp.status
+        FROM
+            tk_prize tp
+    </select>
+
+    <insert id="addPrize" >
+    INSERT INTO tk_prize (
+        prize_name,
+        prize, prize_count,
+        draw_count,
+        activity_id,
+        group_num,
+        create_time
+        )
+    VALUES
+        (
+            #{prizeName},
+            #{prize},
+            #{prizeCount},
+            #{drawCount},
+            #{activityId},
+            #{groupNum},
+            now()
+        )
+
+
+    </insert>
+
+    <update id="updatePrize">
+        UPDATE tk_prize set
+        <if test="prizeName!=null">
+            prize_name=#{prizeName},
+        </if>
+        <if test="prize!=null">
+            prize=#{prize},
+        </if>
+        <if test="prizeImage!=null">
+            prize_image=#{prizeImage},
+        </if>
+        <if test="prizeCount!=null">
+            prize_count=#{prizeCount},
+        </if>
+        <if test="drawCount!=null">
+            draw_count=#{drawCount},
+        </if>
+        <if test="activityId!=null">
+            activity_id=#{activityId},
+        </if>
+        <if test="groupNum!=null">
+            group_num=#{groupNum},
+        </if>
+        <if test="status!=null">
+            status=#{status}
+        </if>
+         where id=#{id}
+    </update>
+
+
+
+</mapper>

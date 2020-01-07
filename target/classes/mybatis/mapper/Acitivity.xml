@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.luckDraw.mapper.ActivityMapper">
+
+    <select id="findActivity" resultType="com.example.luckDraw.model.TkActivity">
+        SELECT
+            ta.id,
+            ta.activity_name AS activityName,
+            ta.create_time AS createTime,
+            ta.`order`,
+            ta.`status`
+        FROM
+            tk_activity ta where ta.status=0
+    </select>
+
+    <insert id="addActivity" >
+        INSERT INTO tk_activity ( activity_name, create_time, `order` )
+            VALUES
+	      ( #{activityName}, now( ), #{order} )
+    </insert>
+
+    <update id="updateActivity">
+        UPDATE tk_activity ta set
+        <if test="activityName!=null">
+            ta.activity_name=#{activityName},
+        </if>
+        <if test="order!=null">
+            ta.order=#{order},
+        </if>
+        <if test="status!=null">
+            ta.status=#{status}
+        </if>
+         where id=#{id}
+    </update>
+
+
+
+</mapper>

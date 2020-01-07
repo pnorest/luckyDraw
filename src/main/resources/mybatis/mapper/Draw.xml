@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.luckDraw.mapper.DrawMapper">
+
+
+
+    <select id="findDrawResult" resultType="com.example.luckDraw.model.TkDrawVo">
+        SELECT
+            td.id,
+            td.`user_id` as userId,
+            td.prize_id AS prizeId,
+            td.draw_id AS drawId,
+            td.create_time AS createTime,
+            td.STATUS ,
+            tp.prize_name,
+            tp.prize
+
+        FROM
+	tk_draw td LEFT JOIN tk_prize tp on td.prize_id=tp.id
+    </select>
+
+
+    <select id="findDrawResultByPrizeId" resultType="com.example.luckDraw.model.TkDrawVo">
+        SELECT
+            td.id,
+            td.`user_id` as userId,
+            td.prize_id AS prizeId,
+            td.draw_id AS drawId,
+            td.create_time AS createTime,
+            td.STATUS ,
+            tp.prize_name,
+            tp.prize
+
+        FROM
+	tk_draw td LEFT JOIN tk_prize tp on td.prize_id=tp.id where td.prize_id=#{prizeId}
+    </select>
+
+
+
+    <insert id="draw">
+        insert into tk_draw (
+        user_id,
+        prize_id,
+        Create_Time
+        ) values
+        <foreach collection="drawVoList" item="tkDrawVo" index="index"  separator=",">
+            (
+            #{tkDrawVo.userId},
+            #{tkDrawVo.prizeId},
+            now()
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateDrawId">
+        <foreach collection="list" item="item"  separator=";">
+            update tk_draw td
+            set td.draw_id=#{item.drawId}
+            where td.user_id = #{item.userId}
+        </foreach>
+    </update>
+
+
+</mapper>

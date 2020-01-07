@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.luckDraw.mapper.PriorityMapper">
+
+    <select id="findPriority" resultType="com.example.luckDraw.model.TkPriority">
+        SELECT
+            tp.id,
+            tp.prize_id AS prizeId,
+            tp.group_id AS groupId,
+            tp.num,
+            tp.activity_id AS activityId,
+            tp.create_time,
+            tp.`status`
+        FROM
+            tk_priority tp
+    </select>
+
+    <select id="findPriorityByPrizeId" resultType="com.example.luckDraw.model.TkPriority">
+         SELECT
+            tp.id,
+            tp.prize_id AS prizeId,
+            tp.group_id AS groupId,
+            tp.num,
+            tp.activity_id AS activityId,
+            tp.create_time,
+            tp.`status`
+        FROM
+            tk_priority tp where prize_id=#{id}
+    </select>
+
+
+
+    <insert id="addPriority" >
+    INSERT INTO tk_priority ( prize_id, group_id, num, activity_id,create_time)
+    VALUES
+        (
+            #{prizeId},
+            #{groupId},
+            #{num},
+            #{activityId},
+
+        now()
+
+        )
+    </insert>
+
+    <update id="updatePriority">
+        UPDATE tk_priority set
+        <if test="prizeId!=null">
+            prize_id=#{prizeId},
+        </if>
+        <if test="groupId!=null">
+            group_id=#{groupId},
+        </if>
+        <if test="num!=null">
+            num=#{num},
+        </if>
+        <if test="activityId!=null">
+            activity_id=#{activityId},
+        </if>
+        <if test="status!=null">
+            status=#{status}
+        </if>
+         where id=#{id}
+    </update>
+
+
+
+</mapper>

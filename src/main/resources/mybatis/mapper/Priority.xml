@@ -10,9 +10,10 @@
             tp.num,
             tp.activity_id AS activityId,
             tp.create_time,
+            tpe.prize,
             tp.`status`
         FROM
-            tk_priority tp
+            tk_priority tp LEFT JOIN tk_prize tpe on tp.prize_id=tpe.id where tp.status=0 and tp.activity_id=#{activityId}
     </select>
 
     <select id="findPriorityByPrizeId" resultType="com.example.luckDraw.model.TkPriority">

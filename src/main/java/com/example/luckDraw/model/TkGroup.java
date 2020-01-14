@@ -21,6 +21,8 @@ public class TkGroup {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;//创建时间
     private Integer status;//删除标记
+    private String groupId;
+
 
     public Integer getId() {
         return id;
@@ -60,5 +62,14 @@ public class TkGroup {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 }

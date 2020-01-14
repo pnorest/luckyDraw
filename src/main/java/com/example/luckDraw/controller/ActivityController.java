@@ -25,6 +25,7 @@ public class ActivityController {
     private ActivityService activityService;
 
 
+
     //查询活动列表
     @RequestMapping("/findActivity")
     public Result findPrize(){//查询所有奖品
@@ -36,12 +37,14 @@ public class ActivityController {
         }
     }
 
+
+
     //新增活动
     @RequestMapping("/addActivity")
     public Result addActivity(TkActivity tkActivity){//查询所有奖品
         try{
             activityService.addActivity(tkActivity);
-            return new Result(Result.CODE.SUCCESS.getCode(),"新增成功");
+            return new Result(Result.CODE.SUCCESS.getCode(),"新增成功",tkActivity);
         }catch (Exception e){
             return new Result(Result.CODE.FAIL.getCode(),"更新失败",e.getMessage());
         }

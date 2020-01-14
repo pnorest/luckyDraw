@@ -16,7 +16,7 @@ import java.util.List;
 @Mapper
 public interface GroupMapper {
 
-    List<TkGroup> findGroup();
+    List<TkGroup> findGroup(TkGroup tkGroup);
 
     void addGroup(TkGroup tkGroup);
 

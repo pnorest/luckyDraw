@@ -6,23 +6,22 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
 /**
- * @ClassName TkPriority
+ * @ClassName TkPrizeGroup
  * @Description TODO
  * @Author Pnorest
- * @Date 2020/1/6 10:23
+ * @Date 2020/1/13 20:53
  * @Version 1.0
  **/
-public class TkPriority {
+public class TkPrizeGroup {
     private Integer id;
-    private Integer prizeId;//优先抽奖的奖项id
-    private String groupId;//优先设置的分组id，多组已逗号分隔
-    private Integer num;//设置分组的人能抽中这个奖的数量
-    private Integer activityId;//活动id
+    private Integer prizeId;//奖项id
+    private String prize;//奖项名称
+    private Integer activityId;//活动Id
+    private String groupNum;//奖项可抽分组
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;//创建时间
     private Integer status;//删除标记
-    private String prize;//奖项
 
     public Integer getId() {
         return id;
@@ -40,28 +39,20 @@ public class TkPriority {
         this.prizeId = prizeId;
     }
 
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
-    public Integer getNum() {
-        return num;
-    }
-
-    public void setNum(Integer num) {
-        this.num = num;
-    }
-
     public Integer getActivityId() {
         return activityId;
     }
 
     public void setActivityId(Integer activityId) {
         this.activityId = activityId;
+    }
+
+    public String getGroupNum() {
+        return groupNum;
+    }
+
+    public void setGroupNum(String groupNum) {
+        this.groupNum = groupNum;
     }
 
     public Date getCreateTime() {
@@ -79,6 +70,7 @@ public class TkPriority {
     public void setStatus(Integer status) {
         this.status = status;
     }
+
 
     public String getPrize() {
         return prize;

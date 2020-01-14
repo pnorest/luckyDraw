@@ -6,17 +6,24 @@
 
     <select id="findDrawResult" resultType="com.example.luckDraw.model.TkDrawVo">
         SELECT
-            td.id,
-            td.`user_id` as userId,
-            td.prize_id AS prizeId,
-            td.draw_id AS drawId,
-            td.create_time AS createTime,
-            td.STATUS ,
+          td.id,
+            td.activity_id as activityId,
+          tp.id as prizeId,
+            tp.prize,
             tp.prize_name,
-            tp.prize
+            tp.prize_count AS prizeCount,
+            tp.prize_image as prizeImage,
+            tu.`name`,
+            tu.account,
+            tu.group_id,
+            tu.id as userId,
+            td.`status`
 
         FROM
-	tk_draw td LEFT JOIN tk_prize tp on td.prize_id=tp.id
+            tk_draw td
+            LEFT JOIN tk_prize tp ON td.prize_id = tp.id
+            LEFT JOIN tk_user tu ON td.user_id = tu.id
+  where td.activity_id=#{activityId} and td.prize_id=#{prizeId}
     </select>
 
 
@@ -25,7 +32,6 @@
             td.id,
             td.`user_id` as userId,
             td.prize_id AS prizeId,
-            td.draw_id AS drawId,
             td.create_time AS createTime,
             td.STATUS ,
             tp.prize_name,
@@ -41,24 +47,38 @@
         insert into tk_draw (
         user_id,
         prize_id,
+        activity_id,
         Create_Time
+
         ) values
         <foreach collection="drawVoList" item="tkDrawVo" index="index"  separator=",">
             (
             #{tkDrawVo.userId},
             #{tkDrawVo.prizeId},
+            #{tkDrawVo.activityId},
             now()
             )
         </foreach>
     </insert>
 
-    <update id="updateDrawId">
-        <foreach collection="list" item="item"  separator=";">
-            update tk_draw td
-            set td.draw_id=#{item.drawId}
-            where td.user_id = #{item.userId}
-        </foreach>
-    </update>
+    <select id="findPrizeIdList" resultType="com.example.luckDraw.model.TkPrize">
+
+            SELECT
+              td.prize_id as id,
+                tp.prize
+            FROM
+                tk_draw td
+                LEFT JOIN tk_prize tp ON td.prize_id = tp.id
+            WHERE
+                td.activity_id = #{activityId}
+            GROUP BY
+                td.prize_id
+
+
+
+    </select>
+
+
 
 
 </mapper>

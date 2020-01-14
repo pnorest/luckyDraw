@@ -8,18 +8,20 @@
             tg.group_name AS groupName,
             tg.activity_id AS activityId,
             tg.create_time AS createTime,
+            tg.group_id as groupId,
             tg.STATUS
         FROM
-            tk_group tg
+            tk_group tg where tg.status=0 and tg.activity_id=#{activityId}
     </select>
 
-    <insert id="addGroup" >
-    INSERT INTO tk_group ( group_name, activity_id, create_time)
+    <insert id="addGroup" useGeneratedKeys="true" keyProperty="id" parameterType="com.example.luckDraw.model.TkGroup">
+    INSERT INTO tk_group ( group_name, activity_id, create_time,group_Id)
     VALUES
         (
             #{groupName},
             #{activityId},
-        now()
+        now(),
+        #{groupId}
 
         )
     </insert>
@@ -32,7 +34,9 @@
         <if test="activityId!=null">
             activity_id=#{activityId},
         </if>
-
+        <if test="groupId!=null">
+            group_id=#{groupId},
+        </if>
         <if test="status!=null">
             status=#{status}
         </if>

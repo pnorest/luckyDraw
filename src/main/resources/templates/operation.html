@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>转储系统</title>
+    <link href="css/index.css" rel="stylesheet"/>
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/util.js"></script>
+    <style>
+        .main h2{
+            text-align: center;
+            position: relative;
+            margin:30px 0;
+        }
+        .goBackBtn{
+            position: absolute;
+            right:30px;
+            top:0px;
+        }
+        .form{
+            padding:30px 22%;
+        }
+        .form_item{
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .form_item label{
+            width:170px;
+            display: inline-block;
+            text-align: right;
+            vertical-align: middle;
+        }
+        .form_item input,.form_item select{
+            width:calc(100% - 200px);
+            float: right;
+        }
+        .form_item select{
+            width:calc(100% - 188px);
+        }
+        .footer{
+            text-align: center;
+        }
+
+        .isSure{
+            margin-top:10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">
+        <img src="image/logo.png" alt="" class="logo_img">
+        <h1>转储系统
+            <div class="userInfo" id="userInfo">
+                <img src="image/account.png" alt="" class="userImg">
+                <span class="userName" id="userName"></span>
+                <i class="downIcon"></i>
+            </div>
+            <div class="dropdown" id="dorpdown" style="display: none;">
+                <div class="dropdown_icon"></div>
+                <ul class="dropdown_menu">
+                    <li class="dropdown_item" id="  ">退出</li>
+                </ul>
+            </div>
+        </h1>
+        <div class="clear"></div>
+    </div>
+    <div class="main">
+        <h2>转储任务配置
+            <button class="btn goBackBtn" id="goBack">返回</button>
+        </h2>
+        <div class="form">
+            <div class="form_item">
+                <label for="jobName">定时任务名称</label>
+                <input type="text" id="jobName" placeholder="请输入">
+                <div class="clear"></div>
+            </div>
+            <div class="form_item">
+                <label for="jobGroupName">定时任务组的名称</label>
+                <input type="text" id="jobGroupName" placeholder="请输入">
+            </div>
+            <div class="form_item">
+                <label for="triggerName">定时任务触发器名称</label>
+                <input type="text" id="triggerName" placeholder="请输入">
+            </div>
+            <div class="form_item">
+                <label for="triggerGroupName">定时任务触发器组的名称</label>
+                <input type="text" id="triggerGroupName" placeholder="请输入">
+            </div>
+            <div class="form_item">
+                <label for="strategy">转储策略</label>
+                <select id="strategy" placeholder="请选择">
+                    <option value="">请选择</option>
+                    <option value="0">转储message</option>
+                    <option value="1">转储早于指定日期的数据</option>
+                    <option value="2">转储晚于指定日期的数据</option>
+                    <option value="3">转储指定日期区间的数据</option>
+                </select>
+            </div>
+            <div class="form_item" id="startTime_div" style="display: none;">
+                <label for="startTime" id="startTime_label">指定开始日期</label>
+                <input type="date" id="startTime">
+            </div>
+            <div class="form_item" id="endTime_div" style="display: none;">
+                <label for="endTime" id="endTime_label">指定结束日期</label>
+                <input type="date" id="endTime">
+            </div>
+            <div class="form_item">
+                <label for="cron">Cron定时参数</label>
+                <input type="text" id="cron" placeholder="请输入">
+            </div>
+            <!--<div class="form_item">-->
+                <!--<label for="operaterId">操作者的用户ID</label>-->
+                <!--<input type="text" id="operaterId" placeholder="请输入">-->
+            <!--</div>-->
+            <div class="form_item">
+                <label for="threadCount">线程数</label>
+                <input type="number" id="threadCount" placeholder="请输入">
+            </div>
+            <div class="footer">
+                <button class="btn submitBtn" id="submitBtn">保存</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-mask" id="tipModal" style="display: none;">
+        <div class="tipModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    提示
+                </div>
+                <div class="modal-body">
+                    <div class="tip" id="jobNameTip"></div>
+                    <div class="tip" id="jobGroupNameTip"></div>
+                    <div class="tip" id="triggerNameTip"></div>
+                    <div class="tip" id="triggerGroupNameTip"></div>
+                    <div class="tip" id="strategyTip"></div>
+                    <div class="tip" id="cronTip"></div>
+                    <!--<div class="tip" id="operaterIdTip"></div>-->
+                    <div class="tip" id="threadCountTip"></div>
+                    <div class="isSure">您确定保存吗？</div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn cancelBtn" id="tipModal_cancelBtn">取消</button>
+                    <button class="btn submitBtn" id="tipModal_submitBtn">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" id="tipErrorModal" style="display: none;">
+        <div class="tipModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    提示
+                </div>
+                <div class="modal-body">
+                    <div id="tipError"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn submitBtn" id="tipErrorModal_submitBtn">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var detailData={};
+        $(document).ready(function() {
+            load()
+        });
+
+        var load=function(){
+            if(localStorage.getItem('username')){
+                $('#userName').html(localStorage.getItem('username'));
+            }
+            // if(localStorage.getItem('operaterId')){
+            //     $('#operaterId').val(localStorage.getItem('operaterId'));
+            //     if($('#operaterId').val()){
+            //         $('#operaterId').attr("disabled",true);
+            //         $('#operaterId').css("cursor","not-allowed");
+            //     }
+            // }
+
+            // if(localStorage.getItem('id')){
+            //     var params={id:localStorage.getItem('id')};
+            // }else{
+            //     var params={id:null};
+            // }
+            var changeDatefunc=function(changeDate){
+                if(changeDate){
+                    var date=new Date(changeDate);
+                    var year = date.getFullYear();
+                    var month = (date.getMonth()+1)>9?(""+(date.getMonth()+1)):("0"+(date.getMonth()+1));
+                    var day = date.getDate()>9?(""+date.getDate()):("0"+date.getDate());
+                    return year+"-"+month+'-'+day
+                }else{
+                    return null
+                }
+            };
+            $.ajax({
+                type:'GET',
+                url:'/wms/dumps/queryConHis',
+                //data:params,
+                dataType:'json',
+                success:function(res){
+                    console.log(res);
+                    detailData=res;
+                    $('#jobName').val(detailData.jobName);
+                    $('#jobGroupName').val(detailData.jobGroupName);
+                    $('#triggerName').val(detailData.triggerName);
+                    $('#triggerGroupName').val(detailData.triggerGroupName);
+                    $('#strategy').val(detailData.strategy);
+                    $('#cron').val(detailData.cron);
+                    $('#threadCount').val(detailData.threadCount);
+                    detailData.startTime=changeDatefunc(detailData.startTime);
+                    detailData.endTime=changeDatefunc(detailData.endTime);
+                    if($('#jobName').val()){
+                        $('#jobName').attr("disabled",true);
+                        $('#jobName').css("cursor","not-allowed");
+                    }
+                    if($('#jobGroupName').val()){
+                        $('#jobGroupName').attr("disabled",true);
+                        $('#jobGroupName').css("cursor","not-allowed");
+                    }
+                    if($('#triggerName').val()){
+                        $('#triggerName').attr("disabled",true);
+                        $('#triggerName').css("cursor","not-allowed");
+                    }
+                    if($('#triggerGroupName').val()){
+                        $('#triggerGroupName').attr("disabled",true);
+                        $('#triggerGroupName').css("cursor","not-allowed");
+                    }
+                    if($('#strategy').val()=="1"){
+                        $("#endTime_label").html("指定日期");
+                        $("#startTime_div").hide();
+                        $("#endTime_div").show();
+                        $("#startTime").val(null);
+                        $("#endTime").val(detailData.endTime)
+                    }else if($('#strategy').val()=="2"){
+                        $("#startTime_label").html("指定日期");
+                        $("#startTime_div").show();
+                        $("#endTime_div").hide();
+                        $("#startTime").val(detailData.startTime);
+                        $("#endTime").val(null)
+                    }else if($('#strategy').val()=="3"){
+                        $("#startTime_label").html("指定开始日期");
+                        $("#endTime_label").html("指定结束日期");
+                        $("#startTime_div").show();
+                        $("#endTime_div").show();
+                        $("#startTime").val(detailData.startTime);
+                        $("#endTime").val(detailData.endTime)
+                    }else{
+                        $("#startTime_div").hide();
+                        $("#endTime_div").hide();
+                        $("#startTime").val(null);
+                        $("#endTime").val(null)
+                    }
+                },
+                error:function(xhr,textStatus){
+                    console.log(1,xhr)
+
+                }
+            })
+        };
+
+        $('#userInfo').click(function(){
+            $('#dorpdown').toggle()
+        });
+        $('#goBack').click(function(){
+            window.location.href='/wms/dumps/index'
+        });
+        $("#strategy").change(function(){
+            if($("#strategy").val()=="1"){
+                $("#endTime_label").html("指定日期");
+                $("#startTime_div").hide();
+                $("#endTime_div").show();
+                $("#startTime").val(null);
+                $("#endTime").val(null)
+            }else if($("#strategy").val()=="2"){
+                $("#startTime_label").html("指定日期");
+                $("#startTime_div").show();
+                $("#endTime_div").hide();
+                $("#startTime").val(null);
+                $("#endTime").val(null)
+            }else if($("#strategy").val()=="3"){
+                $("#startTime_label").html("指定开始日期");
+                $("#endTime_label").html("指定结束日期");
+                $("#startTime_div").show();
+                $("#endTime_div").show();
+                $("#startTime").val(null);
+                $("#endTime").val(null)
+            }else{
+                $("#startTime_div").hide();
+                $("#endTime_div").hide();
+                $("#startTime").val(null);
+                $("#endTime").val(null)
+            }
+        });
+        var currentDate = new Date();
+        var year = currentDate.getFullYear();
+        var month = ((currentDate.getMonth() + 1) < 10) ? ('0' + (currentDate.getMonth() + 1)) : ('' + (currentDate.getMonth() + 1));
+        var day = (currentDate.getDate() < 10) ? ('0' + currentDate.getDate()) : ('' + currentDate.getDate());
+        var currentDay=Number(year + month + day);
+        $('#submitBtn').click(function(){
+            if(!$('#jobName').val()){$("#tipErrorModal").show();$("#tipError").html("定时任务名称不能为空 !");return}
+            if(!$('#jobGroupName').val()){$("#tipErrorModal").show();$("#tipError").html("定时任务组的名称不能为空 !");return}
+            if(!$('#triggerName').val()){$("#tipErrorModal").show();$("#tipError").html("定时任务触发器名称不能为空 !");return}
+            if(!$('#triggerGroupName').val()){$("#tipErrorModal").show();$("#tipError").html("定时任务触发器组的名称不能为空 !");return}
+            if(!$('#strategy').val()){$("#tipErrorModal").show();$("#tipError").html("转储策略不能为空 !");return}
+            if($("#strategy").val()=="1"){
+                if(!$('#endTime').val()){$("#tipErrorModal").show();$("#tipError").html("指定日期不能为空 !");return}
+                var endDate=Number($('#endTime').val().replace(/-/g,""));
+                if(endDate>=currentDay){$("#tipErrorModal").show();$("#tipError").html("指定日期必须小于今天 !");return}
+                console.log(endDate)
+            }else if($("#strategy").val()=="2"){
+                if(!$('#startTime').val()){$("#tipErrorModal").show();$("#tipError").html("指定日期不能为空 !");return}
+                var startDate=Number($('#startTime').val().replace(/-/g,""));
+                if(startDate>=currentDay){$("#tipErrorModal").show();$("#tipError").html("指定日期必须小于今天 !");return}
+                console.log(startDate)
+            }else if($("#strategy").val()=="3"){
+                if(!$('#startTime').val()){$("#tipErrorModal").show();$("#tipError").html("指定开始日期不能为空 !");return}
+                var startDate=Number($('#startTime').val().replace(/-/g,""));
+                if(startDate>=currentDay){$("#tipErrorModal").show();$("#tipError").html("指定开始日期必须小于今天 !");return}
+                if(!$('#endTime').val()){$("#tipErrorModal").show();$("#tipError").html("指定结束日期不能为空 !");return}
+                var endDate=Number($('#endTime').val().replace(/-/g,""));
+                if(endDate>=currentDay){$("#tipErrorModal").show();$("#tipError").html("指定结束日期必须小于今天 !");return}
+                if(startDate>=endDate){$("#tipErrorModal").show();$("#tipError").html("指定结束日期必须大于指定开始日期 !");return}
+            }
+            if(!$('#cron').val()){$("#tipErrorModal").show();$("#tipError").html("Cron定时参数不能为空 !");return}
+            //cron参数校验
+            var cronParams={cron:$('#cron').val()};
+            $.ajax({
+                type:'POST',
+                url:'/wms/dumps/cronCompare',
+                data:cronParams,
+                dataType:'json',
+                success:function(res){
+                    if(res==false){
+                        $("#tipErrorModal").show();$("#tipError").html("Cron表达式有误 !");return
+                    }else{
+                        //if(!$('#operaterId').val()){$("#tipErrorModal").show();$("#tipError").html("操作者的用户ID不能为空 !");return}
+                        if(!$('#threadCount').val()){$("#tipErrorModal").show();$("#tipError").html("线程数不能为空 !");return}
+                        if($('#jobName').val()!=detailData.jobName){
+                            $('#jobNameTip').html("定时任务名称由 "+detailData.jobName+" 修改为 "+$('#jobName').val())
+                        }else{$('#jobNameTip').empty()}
+                        if($('#jobGroupName').val()!=detailData.jobGroupName){
+                            $('#jobGroupNameTip').html("定时任务组的名称由 "+detailData.jobGroupName+" 修改为 "+$('#jobGroupName').val())
+                        }else{$('#jobGroupNameTip').empty()}
+                        if($('#triggerName').val()!=detailData.triggerName){
+                            $('#triggerNameTip').html("定时任务触发器名称由 "+detailData.triggerName+" 修改为 "+$('#triggerName').val())
+                        }else{$('#triggerNameTip').empty()}
+                        if($('#triggerGroupName').val()!=detailData.triggerGroupName){
+                            $('#triggerGroupNameTip').html("定时任务触发器组的名称由 "+detailData.triggerGroupName+" 修改为 "+$('#triggerGroupName').val())
+                        }else{$('#triggerGroupNameTip').empty()}
+                        if(detailData.strategy=="1"){
+                            if($('#strategy').val()=="1"){
+                                if($('#endTime').val()!=detailData.endTime){
+                                    $('#strategyTip').html("指定日期由 "+detailData.endTime+" 修改为 "+$('#endTime').val());
+                                }else{
+                                    $('#strategyTip').empty()
+                                }
+                            }else if($('#strategy').val()=="2"){
+                                $('#strategyTip').html("转储策略由 转储早于指定日期的数据,指定日期为"+detailData.endTime+" 修改为 转储晚于指定日期的数据,指定日期为"+$('#startTime').val())
+                            }else if($('#strategy').val()=="3"){
+                                $('#strategyTip').html("转储策略由 转储早于指定日期的数据,指定日期为"+detailData.endTime+" 修改为 转储指定日期区间的数据,指定区间日期为"+$('#startTime').val()+"-"+$('#endTime').val())
+                            }else if($('#strategy').val()=="0"){
+                                $('#strategyTip').html("转储策略由 转储早于指定日期的数据,指定日期为"+detailData.endTime+" 修改为 转储message");
+                            }
+                        }else if(detailData.strategy=="2"){
+                            if($('#strategy').val()=="1"){
+                                $('#strategyTip').html("转储策略由 转储晚于指定日期的数据,指定日期为"+detailData.startTime+" 修改为 转储早于指定日期的数据,指定日期为"+$('#endTime').val())
+                            }else if($('#strategy').val()=="2"){
+                                if(detailData.startTime!=$('#startTime').val()){
+                                    $('#strategyTip').html("指定日期由 "+detailData.startTime+" 修改为 "+$('#startTime').val())
+                                }else{
+                                    $('#strategyTip').empty()
+                                }
+                            }else if($('#strategy').val()=="3"){
+                                $('#strategyTip').html("转储策略由 转储晚于指定日期的数据,指定日期为"+detailData.startTime+" 修改为 转储指定日期区间的数据,指定区间日期为"+$('#startTime').val()+"-"+$('#endTime').val())
+                            }else if($('#strategy').val()=="0"){
+                                $('#strategyTip').html("转储策略由 转储晚于指定日期的数据,指定日期为"+detailData.startTime+" 修改为 转储message");
+                            }
+                        }else if(detailData.strategy=="3"){
+                            if($('#strategy').val()=="1"){
+                                $('#strategyTip').html("转储策略由 转储指定日期区间的数据,指定区间日期为"+detailData.startTime+"-"+detailData.endTime+" 修改为 转储早于指定日期的数据,指定日期为"+$('#endTime').val())
+                            }else if($('#strategy').val()=="2"){
+                                $('#strategyTip').html("转储策略由 转储指定日期区间的数据,指定区间日期为"+detailData.startTime+"-"+detailData.endTime+" 修改为 转储晚于指定日期的数据,指定日期为"+$('#startTime').val())
+                            }else if($('#strategy').val()=="3"){
+                                if(detailData.startTime!=$('#startTime').val() || detailData.endTime!=$('#endTime').val()){
+                                    $('#strategyTip').html("指定区间日期由 "+detailData.startTime+"-"+detailData.endTime+" 修改为 "+$('#startTime').val()+"-"+$('#endTime').val())
+                                }else{
+                                    $('#strategyTip').empty()
+                                }
+                            }else if($('#strategy').val()=="0"){
+                                $('#strategyTip').html("转储策略由 转储指定日期区间的数据,指定区间日期为"+detailData.startTime+"-"+detailData.endTime+" 修改为 转储message");
+                            }
+                        }else if(detailData.strategy=="0"){
+                            if($('#strategy').val()=="1"){
+                                $('#strategyTip').html("转储策略由 转储message 修改为 转储早于指定日期的数据，指定日期为"+$('#endTime').val());
+                            }else if($('#strategy').val()=="2"){
+                                $('#strategyTip').html("转储策略由 转储message 修改为 转储晚于指定日期的数据，指定日期为"+$('#startTime').val());
+                            }else if($('#strategy').val()=="3"){
+                                $('#strategyTip').html("转储策略由 转储message 修改为 转储指定日期区间的数据,指定区间日期为"+$('#startTime').val()+"-"+$('#endTime').val());
+                            }else if($('#strategy').val()=="0"){
+                                $('#strategyTip').empty()
+                            }
+                        }else{
+                            if($('#strategy').val()=="1"){
+                                $('#strategyTip').html("转储策略由 "+detailData.strategy+" 修改为 转储早于指定日期的数据，指定日期为"+$('#endTime').val());
+                            }else if($('#strategy').val()=="2"){
+                                $('#strategyTip').html("转储策略由 "+detailData.strategy+" 修改为 转储晚于指定日期的数据，指定日期为"+$('#startTime').val());
+                            }else if($('#strategy').val()=="3"){
+                                $('#strategyTip').html("转储策略由 "+detailData.strategy+" 修改为 转储指定日期区间的数据,指定区间日期为"+$('#startTime').val()+"-"+$('#endTime').val());
+                            }else if($('#strategy').val()=="0"){
+                                $('#strategyTip').html("转储策略由 "+detailData.strategy+" 修改为 转储message");
+                            }
+                        }
+
+                        if($('#cron').val()!=detailData.cron){
+                            $('#cronTip').html("Cron定时参数由 "+detailData.cron+" 修改为 "+$('#cron').val())
+                        }else{$('#cronTip').empty()}
+                        // if($('#operaterId').val()!=detailData.operaterId){
+                        //     $('#operaterIdTip').html("操作者的用户ID由 "+detailData.operaterId+" 修改为 "+$('#operaterId').val())
+                        // }else{$('#operaterIdTip').empty()}
+                        if($('#threadCount').val()!=detailData.threadCount){
+                            $('#threadCountTip').html("线程数名称由 "+detailData.threadCount+" 修改为 "+$('#threadCount').val())
+                        }else{$('#threadCountTip').empty()}
+
+                        $('#tipModal').show();
+                    }
+                },
+                error:function(xhr,textStatus){
+                    $("#tipErrorModal").show();$("#tipError").html("服务器错误 !");return
+                }
+            });
+
+        });
+
+        $("#tipErrorModal_submitBtn").click(function(){
+            $("#tipErrorModal").hide()
+        });
+
+        $('#tipModal_submitBtn').click(function(){
+            var params={};
+            params.id=detailData.id;
+            params.jobName=$('#jobName').val();
+            params.jobGroupName=$('#jobGroupName').val();
+            params.triggerName=$('#triggerName').val();
+            params.triggerGroupName=$('#triggerGroupName').val();
+            params.strategy=$('#strategy').val();
+            params.startTime=$('#startTime').val();
+            params.endTime=$('#endTime').val();
+            params.cron=$('#cron').val();
+            //params.operaterid=Number($('#operaterId').val());
+            params.threadCount=Number($('#threadCount').val());
+            console.log(params);
+            if(params.startTime==''){
+                params.startTime=undefined
+            }
+            if(params.endTime==''){
+                params.endTime=undefined
+            }
+            $.ajax({
+                type:'POST',
+                url:'/wms/dumps/saveJob',
+                data:params,
+                dataType:'json',
+                success:function(res){
+                    console.log(res)
+
+                    // private Integer code;  0表示成功，成功有id值，1表示失败，失败有msg提醒
+                    // private String message;
+                    // private Object data;
+                    console.log(res)
+                     if(res.code=0){
+                         //localStorage.setItem('id',res.data);
+                         $("#tipErrorModal").show();$("#tipError").html("保存成功!");
+                         load()
+                     }else{
+                         //localStorage.removeItem('id')
+                         $("#tipErrorModal").show();$("#tipError").html(res.message);
+                    }
+
+                },
+                error:function(xhr,textStatus){
+                    $("#tipErrorModal").show();$("#tipError").html("服务器错误!");
+                }
+            });
+
+            $('#tipModal').hide();
+        });
+
+        $('#tipModal_cancelBtn').click(function(){
+            $('#tipModal').hide();
+        });
+
+    </script>
+</body>
+</html>

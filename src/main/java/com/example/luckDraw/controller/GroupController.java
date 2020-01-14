@@ -28,20 +28,20 @@ public class GroupController {
     private GroupService groupService;
 
 
-    //查询奖项
+    //查询分组
     @RequestMapping("/findGroup")
-    public Result findGroup(){//查询所有奖品
+    public Result findGroup(TkGroup tkGroup){
         try{
-            List<TkGroup> groupList=groupService.findGroup();
+            List<TkGroup> groupList=groupService.findGroup(tkGroup);
             return new Result(Result.CODE.SUCCESS.getCode(),"查询成功",groupList);
         }catch (Exception e){
             return new Result(Result.CODE.FAIL.getCode(),"查询失败",e.getMessage());
         }
     }
 
-    //新增奖项
+    //新增分组
     @RequestMapping("/addGroup")
-    public Result addGroup(TkGroup tkGroup){//groupNum一定要有个下拉框，选择群组
+    public Result addGroup(TkGroup tkGroup){
         try{
             groupService.addGroup(tkGroup);
             return new Result(Result.CODE.SUCCESS.getCode(),"新增成功");
@@ -52,7 +52,7 @@ public class GroupController {
     }
 
 
-    //更改奖项
+    //更改分组
     @RequestMapping("/updateGroup")
     public Result updateGroup(TkGroup tkGroup){//groupNum一定要有个下拉框，选择群组
         try{
@@ -67,7 +67,7 @@ public class GroupController {
 
 
 
-    //删除奖项
+    //删除分组
     @RequestMapping("/deleteGroup")
     public Result deleteGroup(TkGroup tkGroup){//groupNum一定要有个下拉框，选择群组
         try{

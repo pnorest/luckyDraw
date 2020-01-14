@@ -32,9 +32,9 @@ public class UserController {
 
     //查询抽奖用户
     @RequestMapping("/findUser")
-    public Result findUser(){//查询所有奖品
+    public Result findUser(TkUser tkUser){//查询所有奖品
         try{
-            List<TkUser> users=userService.findUser();
+            List<TkUser> users=userService.findUser(tkUser);
             return new Result(Result.CODE.SUCCESS.getCode(),"查询成功",users);
         }catch (Exception e){
             return new Result(Result.CODE.FAIL.getCode(),"查询失败",e.getMessage());
@@ -109,16 +109,24 @@ public class UserController {
 
     //模板下载接口
     @RequestMapping(value = "/downloadTemplate")
-    public Result downloadTemplate(HttpServletResponse response, HttpServletRequest request) throws IOException {
-        try {
-            String templeteName = "模板.xlsx";
+    public void downloadTemplate(HttpServletResponse response, HttpServletRequest request) throws IOException {
+        try {//这里下载模版汇报错，但不影响使用（原因是给返回值） 去掉吧
+            String templeteName = "抽奖名单模板.xlsx";
             userService.downloadTemplate(response, request, templeteName);  //调用业务层方法
-            return new Result(Result.CODE.SUCCESS.getCode(), "下载文件模版成功");
+            //return new Result(Result.CODE.SUCCESS.getCode(), "下载文件模版成功");
         } catch (Exception e) {
-            return new Result(Result.CODE.FAIL.getCode(), "下载文件模版失败",e.getMessage());
+            //return new Result(Result.CODE.FAIL.getCode(), "下载文件模版失败",e.getMessage());
 
         }
     }
+
+
+
+    @RequestMapping("/operation")
+    public String userManagement() {
+        return "operation";
+    }
+
 
 
 }

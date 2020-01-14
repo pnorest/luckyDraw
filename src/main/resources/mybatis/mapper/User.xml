@@ -6,32 +6,33 @@
         SELECT
             tu.id,
             tu.NAME,
-            tu.phone,
+            tu.account,
             tu.activity_id AS activityId,
             tu.group_id AS groupId,
             tu.create_time AS createTime,
             tu.STATUS
         FROM
-            tk_user tu  where status=0
+            tk_user tu  where status=0 and tu.activity_id=#{activityId}
     </select>
 
     <select id="findUserByGroupId" resultType="com.example.luckDraw.model.TkDrawVo">
-        SELECT
+
+    SELECT
             tu.id as userId,
             tu.create_time AS createTime,
             tu.STATUS
         FROM
-            tk_user tu  where status=0 and tu.group_id in (#{groupId})  and tu.id not in (SELECT user_id from tk_draw )
-    </select>
+            tk_user tu  where status=0 and tu.group_id in (${groupId}) and tu.activity_id=#{activityId}  and tu.id not in (SELECT user_id from tk_draw where activity_id=#{activityId})
+</select>
 
 
 
     <insert id="addUser" >
-    INSERT INTO tk_user ( name, phone, activity_id, group_id, create_time)
+    INSERT INTO tk_user ( name, account, activity_id, group_id, create_time)
     VALUES
         (
             #{name},
-            #{phone},
+            #{account},
             #{activityId},
             #{groupId},
             now()
@@ -44,8 +45,8 @@
         <if test="name!=null">
             name=#{name},
         </if>
-        <if test="phone!=null">
-            phone=#{phone},
+        <if test="account!=null">
+            account=#{account},
         </if>
         <if test="activityId!=null">
             activity_id=#{activityId},
@@ -68,7 +69,7 @@
     <insert id="insertUserInfo">
         insert into tk_user (
         name,
-        phone,
+        account,
         group_id,
         activity_id,
         Create_Time
@@ -76,7 +77,7 @@
         <foreach collection="tkUsers" item="tkUser" index="index"  separator=",">
             (
             #{tkUser.name},
-            #{tkUser.phone},
+            #{tkUser.account},
             #{tkUser.groupId},
             #{tkUser.activityId},
             now()

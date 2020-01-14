@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName DrawController
@@ -26,11 +27,12 @@ public class DrawController {
 
     //开始抽奖接口
     @RequestMapping("/startDraw")
-    public Result startDraw(){//开始抽奖的逻辑
+    public Result startDraw(Integer activityId){//开始抽奖的逻辑
         try{
-            String result=drawService.startDraw();
+            String result=drawService.startDraw(activityId);
             return new Result(Result.CODE.SUCCESS.getCode(),result);
         }catch (Exception e){
+            System.out.println(e);
             return new Result(Result.CODE.FAIL.getCode(),"抽奖失败",e.getMessage());
         }
 
@@ -38,9 +40,9 @@ public class DrawController {
     }
 
     @RequestMapping("/findDrawResult")
-    public Result findDrawResult(){//查询抽奖结果
+    public Result findDrawResult(Integer activityId){//查询抽奖结果
         try{
-            List<TkDrawVo> tkDrawList=drawService.findDrawResult();
+            List<Map<String,List<TkDrawVo>>> tkDrawList=drawService.findDrawResult(activityId);
             return new Result(Result.CODE.SUCCESS.getCode(),"查询抽奖结果成功",tkDrawList);
         }catch (Exception e){
             return new Result(Result.CODE.FAIL.getCode(),"查询抽奖结果失败",e.getMessage());

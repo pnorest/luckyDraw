@@ -16,7 +16,7 @@ import java.util.Date;
 public class TkUser {
     private Integer id;
     private String name;//抽奖人姓名
-    private String phone;//抽中人手机号
+    private String account;//抽中人账号
     private String groupId;//抽中人分组id
     private String activityId;//活动id
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -41,12 +41,13 @@ public class TkUser {
         this.name = name;
     }
 
-    public String getPhone() {
-        return phone;
+
+    public String getAccount() {
+        return account;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setAccount(String account) {
+        this.account = account;
     }
 
     public String getGroupId() {

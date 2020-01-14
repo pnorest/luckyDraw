@@ -27,9 +27,9 @@ public class PriorityController {
 
     //查询奖项
     @RequestMapping("/findPriority")
-    public Result findPriority(){//查询所有奖品
+    public Result findPriority(TkPriority tkPriority){//查询所有奖品
         try{
-            List<TkPriority> prizeList=priorityService.findPriority();
+            List<TkPriority> prizeList=priorityService.findPriority(tkPriority);
             return new Result(Result.CODE.SUCCESS.getCode(),"查询成功",prizeList);
         }catch (Exception e){
             return new Result(Result.CODE.FAIL.getCode(),"查询失败",e.getMessage());

@@ -12,11 +12,11 @@ import java.util.List;
 public interface DrawMapper {
 
 
-    List<TkDrawVo> findDrawResult();
+    List<TkDrawVo> findDrawResult(@Param("activityId")Integer activityId,@Param("prizeId")Integer prizeId);
 
     void draw(@Param("drawVoList") List<TkDrawVo> drawVoList);
 
     List<TkDrawVo> findDrawResultByPrizeId(Integer id);
 
-    void updateDrawId(@Param("list") List<TkDrawVo> list);
+    List<TkPrize> findPrizeIdList(Integer activityId);
 }

@@ -19,7 +19,7 @@ import java.util.List;
 public interface UserMapper {
 
 
-    List<TkUser> findUser();
+    List<TkUser> findUser(TkUser tkUser);
 
     void addUser(TkUser tkUser);
 
@@ -29,5 +29,5 @@ public interface UserMapper {
 
     void insertUserInfo(@Param("tkUsers") List<TkUser> tkUsers);
 
-    List<TkDrawVo> findUserByGroupId(String groupId);//只需查到user_id复制到TkDrawVo到userId中就行
+    List<TkDrawVo> findUserByGroupId(@Param("groupId")String groupId,@Param("activityId") Integer activityId);//只需查到user_id复制到TkDrawVo到userId中就行
 }

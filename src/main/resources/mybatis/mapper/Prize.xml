@@ -3,28 +3,28 @@
 <mapper namespace="com.example.luckDraw.mapper.PrizeMapper">
 
     <select id="findPrize" resultType="com.example.luckDraw.model.TkPrize">
-        SELECT
-            tp.id,
-            tp.prize_name AS prizeName,
-            tp.prize,
-            tp.prize_image AS prizeImage,
-            tp.prize_count AS prizeCount,
-            tp.draw_count AS drawCount,
-            tp.activity_id AS activitieId,
-            tp.group_num AS groupNum,
-            tp.create_time AS createTime,
-            tp.status
-        FROM
-            tk_prize tp
+            SELECT
+                    tp.id,
+                    tp.prize_name AS prizeName,
+                    tp.prize,
+                    tp.prize_image AS prizeImage,
+                    tp.prize_count AS prizeCount,
+                    tp.activity_id AS activitieId,
+                    tp.create_time AS createTime,
+                    tpg.group_num AS groupNum,
+                    tp.status
+            FROM
+            tk_prize tp  LEFT JOIN tk_prize_group tpg on tp.id=tpg.prize_id where tp.status=0 and tp.activity_id=#{activityId}
+
     </select>
 
     <insert id="addPrize" >
     INSERT INTO tk_prize (
         prize_name,
-        prize, prize_count,
-        draw_count,
+        prize,
+        prize_count,
+        prize_image,
         activity_id,
-        group_num,
         create_time
         )
     VALUES
@@ -32,14 +32,32 @@
             #{prizeName},
             #{prize},
             #{prizeCount},
-            #{drawCount},
+            #{prizeImage},
             #{activityId},
-            #{groupNum},
             now()
         )
 
 
     </insert>
+
+    <insert id="addPrizeGroup" >
+    INSERT INTO tk_prize_group (
+        prize_id,
+        group_num,
+        activity_id,
+        create_time
+        )
+    VALUES
+        (
+            #{prizeId},
+            #{groupNum},
+            #{activityId},
+            now()
+        )
+
+
+    </insert>
+
 
     <update id="updatePrize">
         UPDATE tk_prize set
@@ -55,20 +73,48 @@
         <if test="prizeCount!=null">
             prize_count=#{prizeCount},
         </if>
-        <if test="drawCount!=null">
-            draw_count=#{drawCount},
-        </if>
         <if test="activityId!=null">
             activity_id=#{activityId},
         </if>
-        <if test="groupNum!=null">
-            group_num=#{groupNum},
-        </if>
+
         <if test="status!=null">
             status=#{status}
         </if>
          where id=#{id}
     </update>
+
+    <update id="updatePrizeGroup">
+        UPDATE tk_prize_group set
+        <if test="prizeId!=null">
+            prize_id=#{prizeId},
+        </if>
+        <if test="groupNum!=null">
+            group_num=#{groupNum},
+        </if>
+        <if test="activityId!=null">
+            activity_id=#{activityId},
+        </if>
+        <if test="status!=null">
+            status=#{status}
+        </if>
+        where id=#{id}
+    </update>
+
+    <select id="findPrizeGroup" resultType="com.example.luckDraw.model.TkPrizeGroup">
+SELECT
+                    tpg.id,
+                    tp.prize_name AS prizeName,
+                    tp.prize,
+                    tp.prize_image AS prizeImage,
+                    tp.prize_count AS prizeCount,
+                    tp.activity_id AS activitieId,
+                    tp.create_time AS createTime,
+                    tpg.group_num AS groupNum,
+                    tpg.prize_id AS prizeId,
+                    tpg.status
+            FROM
+      tk_prize_group tpg        LEFT JOIN tk_prize tp on tp.id=tpg.prize_id where tpg.status=0 and tpg.activity_id=#{activityId}
+    </select>
 
 
 

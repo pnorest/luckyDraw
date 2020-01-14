@@ -13,7 +13,7 @@
             tk_activity ta where ta.status=0
     </select>
 
-    <insert id="addActivity" >
+    <insert id="addActivity"  useGeneratedKeys="true" keyProperty="id" parameterType="com.example.luckDraw.model.TkActivity">
         INSERT INTO tk_activity ( activity_name, create_time, `order` )
             VALUES
 	      ( #{activityName}, now( ), #{order} )

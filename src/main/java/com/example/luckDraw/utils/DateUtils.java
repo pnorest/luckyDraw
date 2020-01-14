@@ -110,7 +110,7 @@ public class DateUtils {
         if (date == null) {
             return null;
         }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(date);
     }
 
@@ -133,4 +133,16 @@ public class DateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD'T'HH:mm:ss.SSS");//Illegal pattern character 'T'
         return sdf.format(date);
     }
+
+
+    public static String splitString(String s) {
+        StringBuilder stringBuilder=new StringBuilder();
+        String[] strings=s.split(",");
+        for(String string:strings){
+            stringBuilder.append("'").append(string).append("'").append(",");
+        }
+        return stringBuilder.deleteCharAt(stringBuilder.length()-1).toString();
+    }
+
+
 }

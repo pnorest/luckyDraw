@@ -19,9 +19,9 @@ public class TkPrize {
     private String prize;//奖项名称
     private String prizeImage;//奖品图片
     private Integer prizeCount;//奖品数量
-    private Integer drawCount;//抽奖轮次
+//    private Integer drawCount;//抽奖轮次
     private Integer activityId;//活动Id
-    private String groupNum;//可抽奖分组 以逗号分隔
+    private String groupNum;//可抽奖分组 以逗号分隔   这个是从分离出的表里查出来的
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;//创建时间
@@ -68,13 +68,7 @@ public class TkPrize {
         this.prizeCount = prizeCount;
     }
 
-    public Integer getDrawCount() {
-        return drawCount;
-    }
 
-    public void setDrawCount(Integer drawCount) {
-        this.drawCount = drawCount;
-    }
 
     public Integer getActivityId() {
         return activityId;

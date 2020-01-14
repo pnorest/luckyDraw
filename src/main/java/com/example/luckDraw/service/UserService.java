@@ -50,8 +50,8 @@ public class UserService {
     @Value("${tmpPath}")
     private String tmpPath;
 
-    public List<TkUser> findUser() {
-        return userMapper.findUser();
+    public List<TkUser> findUser(TkUser tkUser) {
+        return userMapper.findUser(tkUser);
     }
 
     public void addUser(TkUser tkUser) {
@@ -86,7 +86,7 @@ public class UserService {
         //int combineCellNum=0;//第几个合并单元格     0表示第一个
 
         logger.info("引用Excel地址为：" + filePath);
-        String columns[] = {"姓名", "手机号","对应分组id"};//关键词  回复
+        String columns[] = {"姓名", "标识","对应分组"};//关键词  回复
         wb = readExcel(filePath);
         if (wb != null) {
             //用来存放表中数据
@@ -133,17 +133,17 @@ public class UserService {
 
             TkUser user = new TkUser();
             String username = map.get("姓名");
-            String phone = map.get("手机号");
-            String groupId = map.get("对应分组id");
+            String account = map.get("标识");
+            String groupId = map.get("对应分组");
 
-            logger.info("用户名:" + username);
-            logger.info("手机号" + phone);
-            logger.info("对应分组id" + groupId);
-            if ("".equals(username) || "".equals(phone)|| "".equals(groupId)) {
+            logger.info("姓名:" + username);
+            logger.info("标识" + account);
+            logger.info("对应分组" + groupId);
+            if ("".equals(username) || "".equals(account)|| "".equals(groupId)) {
                 continue;//不插入一行中有空关键字或者回复的数据
             }
             user.setName(username);
-            user.setPhone(phone);
+            user.setAccount(account);
             user.setGroupId(groupId);
             user.setActivityId(tkUser.getActivityId());
 
@@ -151,7 +151,7 @@ public class UserService {
         }
         userMapper.insertUserInfo(tkUsers);//批量插入excel中数据   批量插入无法获取到自增id（目前无好办法），故插入，查询，再插入这样
 
-        List<TkUser> tkUserList=userMapper.findUser();
+        List<TkUser> tkUserList=userMapper.findUser(tkUser);
         return new Result(Result.CODE.SUCCESS.getCode(), "批量插入Excel机器人回复数据成功", tkUserList);
     }
 
@@ -193,6 +193,7 @@ public class UserService {
 
     public Object getCellFormatValue(Cell cell) {
         Object cellValue = null;
+        cell.setCellType(Cell.CELL_TYPE_STRING);//把表格的格式设置为字符串，避免科学计数法
         if (cell != null) {
             //判断cell类型
             switch (cell.getCellType()) {
@@ -235,11 +236,12 @@ public class UserService {
 //                    fileName = templeteName + ".xls";
 //                }
 //            }
-            //String ctxPath = request.getSession().getServletContext().getRealPath(File.separator) + File.separator + "template" + File.separator;
-            String filedownload = tmpPath + "/robot" + "/" + fileName;
+            //String ctxPath = request.getSession().getServletContext().getRealPath(File.separator) + File.separator + "templates" + File.separator;
+            String filedownload = tmpPath  + "/" + fileName;
             fileName = URLEncoder.encode(fileName, "UTF-8");
             // 要下载的模板所在的绝对路径
             response.reset();
+
             response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
             response.setContentType("application/octet-stream;charset=UTF-8");
             outp = response.getOutputStream();
@@ -259,7 +261,7 @@ public class UserService {
                 in = null;
             }
             if (outp != null) {
-                outp.close();
+                //outp.close();
                 outp = null;
             }
         }
@@ -269,7 +271,7 @@ public class UserService {
 
 
 
-    public Result uploadFile(MultipartFile file) throws IOException {
+    public  Result uploadFile(MultipartFile file) throws IOException {
         //前端没有选择文件，file文件为空
         if (file.isEmpty()) {
             return new Result(Result.CODE.SUCCESS.getCode(), "请选择一个文件");
@@ -281,7 +283,7 @@ public class UserService {
         //String fileName= UUID.randomUUID().toString().replaceAll("-","")+"."+fileType;
         //String fileUrl="D:\\MyDocuments\\itw_zhouliang01\\桌面\\"+fileName;
         //Tue Jan 07 00:00:00 CST 2020
-        String fileUrl = tmpPath + "/robot" + "/" + DateUtils.convertDateToString(DateUtils.getCurrentDateTime()) + "/" + localFileName;
+        String fileUrl = tmpPath  + "/" + DateUtils.convertDateToString(DateUtils.getCurrentDate()) + "/"+UUID.randomUUID().toString().replaceAll("-","")+"/" + localFileName;//用uuid做文件夹名字
         File resultFile = new File(fileUrl);
         if (!resultFile.getParentFile().exists()) {
             resultFile.getParentFile().mkdirs();
@@ -292,6 +294,8 @@ public class UserService {
         logger.info("把上传的文件copy到项目的某个位置:" + resultFile.getAbsolutePath());
         return new Result(Result.CODE.SUCCESS.getCode(), "上传成功", resultFile.getAbsolutePath());
     }
+
+
 
 
 ////    robot合并单元格处理

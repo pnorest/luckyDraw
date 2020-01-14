@@ -21,7 +21,7 @@ public interface PriorityMapper {
 
     void addPriority(TkPriority tkPriority);
 
-    List<TkPriority> findPriority();
+    List<TkPriority> findPriority(TkPriority tkPriority);
 
     List<TkPriority> findPriorityByPrizeId(Integer id);
 }

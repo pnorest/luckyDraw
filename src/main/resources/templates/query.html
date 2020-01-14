@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>转储系统</title>
+    <link href="css/index.css" rel="stylesheet"/>
+    <link href="css/jquery.pagination.css" rel="stylesheet"/>
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/jquery.pagination.min.js"></script>
+    <script src="js/util.js"></script>
+    <style>
+        .main{
+            padding:0 30px;
+        }
+        .main h2{
+            text-align: center;
+            position: relative;
+            margin:30px 0;
+        }
+        .goBackBtn{
+            position: absolute;
+            right:0px;
+            top:0px;
+        }
+        .fr{
+            float: right;
+        }
+        .table{
+            border-collapse: collapse;
+            font-size: 14px;
+            text-align:center;
+            width:100%;
+        }
+        .table th,.table td{
+            border:1px solid #dbdbdb;
+            padding:5px 10px;
+        }
+        .table th{
+            background: #f0f0f0;
+        }
+        .main_content{
+            position: relative;
+            height:400px;
+        }
+        .pageBox{
+            position: absolute;
+            bottom:0;
+            right:0;
+            overflow: hidden;
+        }
+        .jump_div{
+            float: right;
+            margin:2px 0 0 2px;
+        }
+        .jump_input{
+            width:20px;
+            height:25px;
+        }
+        .jump_btn{
+            padding:7px 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">
+        <img src="image/logo.png" alt="" class="logo_img">
+        <h1>转储系统
+            <div class="userInfo" id="userInfo">
+                <img src="image/account.png" alt="" class="userImg">
+                <span class="userName" id="userName">admin</span>
+                <i class="downIcon"></i>
+            </div>
+            <div class="dropdown" id="dorpdown" style="display: none;">
+                <div class="dropdown_icon"></div>
+                <ul class="dropdown_menu">
+                    <li class="dropdown_item" id="loginOut">退出</li>
+                </ul>
+            </div>
+        </h1>
+        <div class="clear"></div>
+    </div>
+    <div class="main">
+        <h2>任务列表查看
+            <button class="btn goBackBtn" id="goBack">返回</button>
+        </h2>
+        <div class="main_search">
+            <input type="date" id="startDate">
+            <input type="date" id="endDate">
+            <input type="button" value="查询" id="storeBtn" class="btn">
+        </div>
+        <br>
+        <div class="main_content">
+            <table class="table" id="myTable">
+                <thead>
+                <tr>
+                    <!--<th>状态信息</th>-->
+                    <th>开始时间</th>
+                    <th>截止时间</th>
+                    <th>耗时</th>
+                    <th>总对象数</th>
+                    <th>成功数</th>
+                    <th>成功率</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+            <div class="box pageBox">
+                <div class="jump_div" id="jump_div">
+                    <input type="text" class="jump_input" id="jump_input">
+                    <button class="jump_btn btn" id="jump_btn">跳转</button>
+                </div>
+                <div id="pagination1" class="page fr">
+                    <!--<div class="ui-pagination-container">-->
+                        <!--<a href="javascript:void(0);" class="ui-pagination-page-item" data-current="1">首页</a>-->
+                        <!--<a href="javascript:void(0);" class="ui-pagination-page-item" data-current="5">上一页</a>-->
+                        <!--<a href="javascript:void(0);" class="ui-pagination-page-item" data-current="4">4</a>-->
+                        <!--<a href="javascript:void(0);" class="ui-pagination-page-item" data-current="5">5</a>-->
+                        <!--<a href="javascript:void(0);" class="ui-pagination-page-item" data-current="6">6</a>-->
+                        <!--<a href="javascript:void(0);" class="ui-pagination-page-item" data-current="7">7</a>-->
+                        <!--<a href="javascript:void(0);" class="ui-pagination-page-item" data-current="8">8</a>-->
+                        <!--<input type="text" style="height:20px;width:50px;margin-top:-4px" placeholder="页码">-->
+                        <!--<a href="javascript:void(0);" class="ui-pagination-page-btn">跳转</a>-->
+                        <!--<a href="javascript:void(0);" class="ui-pagination-page-item" data-current="7">下一页</a>-->
+                        <!--<a href="javascript:void(0);" class="ui-pagination-page-item" data-current="12">尾页</a>-->
+
+                    <!--</div>-->
+                </div>
+
+            </div>
+        </div>
+    </div>
+<script>
+    var pageTotal;
+    $(document).ready(function() {
+        if(localStorage.getItem('username')){
+            $('#userName').html(localStorage.getItem('username'));
+        }
+
+        var currentDate = new Date();
+        var year = currentDate.getFullYear();
+        var month = ((currentDate.getMonth() + 1) < 10) ? ('0' + (currentDate.getMonth() + 1)) : ('' + (currentDate.getMonth() + 1));
+        var day = (currentDate.getDate() < 10) ? ('0' + currentDate.getDate()) : ('' + currentDate.getDate());
+        console.log(year,month,day);
+        var endDate=year + '-' + month + '-' + day;
+        var startDate=year + '-' + month + '-' + '01';
+        $('#startDate').val(startDate);
+        $('#endDate').val(endDate);
+        load(1)
+    });
+
+    $('#userInfo').click(function(){
+        $('#dorpdown').toggle()
+    });
+
+    $('#goBack').click(function(){
+        window.location.href='/wms/dumps/index'
+    });
+
+    var changeDatefunc=function(changeDate){
+        if(changeDate){
+            var date=new Date(changeDate);
+            var year = date.getFullYear();
+            var month = (date.getMonth()+1)>9?(""+(date.getMonth()+1)):("0"+(date.getMonth()+1));
+            var day = date.getDate()>9?(""+date.getDate()):("0"+date.getDate());
+            var hours = date.getHours()>9?(""+date.getHours()):("0"+date.getHours());
+            var minutes = date.getMinutes()>9?(""+date.getMinutes()):("0"+date.getMinutes());
+            var seconds = date.getSeconds()>9?(""+date.getSeconds()):("0"+date.getSeconds());
+            return year+"-"+month+'-'+day+" "+hours+":"+minutes+":"+seconds
+        }else{
+            return null
+        }
+    };
+    var showData=function(data){
+        console.log(data)
+        var list = data.list;
+        if(!$('#endDate').val()){
+            list=[]
+        }
+        if(list.length>0){
+            $('#myTable>tbody').empty();
+            for(var i=0;i<list.length;i++){
+                var usedTime=Number(list[i].stopTime)-Number(list[i].startTime);
+                var timeDays=Math.floor(usedTime/(24*3600*1000));
+                var leave1=usedTime%(24*3600*1000);
+                var timeHours=Math.floor(leave1/(3600*1000));
+                var leave2=leave1%(3600*1000);
+                var timeMinutes=Math.floor(leave2/(60*1000));
+                var timeSencond=Math.floor((leave2%(60*1000))/1000);
+                list[i].timeConsuming = timeHours+"时"+timeMinutes+"分"+timeSencond+"秒";
+
+                list[i].startTime=changeDatefunc(list[i].startTime);
+                list[i].stopTime=changeDatefunc(list[i].stopTime);
+
+                list[i].successRate=list[i].objectCount==0?'0%':Math.round((Number(list[i].okCount)/Number(list[i].objectCount))*10000)/100.00+"%";
+
+                var str = '';
+                str+='<tr>';
+                // str+='<td>'+list[i].status+'</td>';
+                str+='<td>'+list[i].startTime+'</td>';
+                str+='<td>'+list[i].stopTime+'</td>';
+                str+='<td>'+list[i].timeConsuming+'</td>';
+                str+='<td>'+list[i].objectCount+'</td>';
+                str+='<td>'+list[i].okCount+'</td>';
+                str+='<td>'+list[i].successRate+'</td>';
+                str+='</tr>';
+                $('#myTable>tbody').append(str)
+            }
+
+            console.log(data.pageNum,data.pages);
+            console.log($("#pagination1"));
+            $("#pagination1").pagination({
+                currentPage: data.pageNum,
+                totalPage: data.pages,
+                callback: function(current) {
+                    console.log(current);
+                    if(current<= data.pages){
+                        load(current)
+                    }else{
+                    }
+
+                }
+            });
+            if(data.total<2){
+                $('#jump_div').hide()
+            }
+        }else{
+            $('#myTable>tbody').empty();
+            var str = '';
+            str+='<tr>';
+            str+='<td colspan="7">暂无数据</td>';
+            str+='</tr>';
+            $('#myTable>tbody').append(str);
+            console.log(data)
+            $("#pagination1").pagination({
+                currentPage: 1,
+                totalPage: 1,
+                callback: function(current) {
+                    console.log(current)
+                }
+            });
+            $('#jump_div').hide()
+        }
+    };
+
+    var load=function(pageNum){
+        var startDate=$('#startDate').val();
+        var endDate=$('#endDate').val();
+
+        var params={
+            startDate:startDate,
+            endDate:endDate,
+            pageNum:pageNum,
+            pageSize:'10'
+        };
+        console.log(startDate);
+        console.log(endDate);
+        $.ajax({
+            type:'POST',
+            url:'/wms/dumps/queryJob',
+            data:params,
+            dataType:'json',
+            success:function(res){
+
+                var data=res
+                pageTotal=data.pages;
+
+                // res.list
+                // res.pageNum
+                // res.pageSize
+
+                console.log(pageTotal)
+                showData(data)
+            },
+            error:function(xhr,textStatus){
+                console.log(1,xhr);
+                if(pageNum != 25){
+                    var data={pages:25,pageSize:'10',pageNum:pageNum,list:[
+                            {id:'1',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'2',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'3',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'4',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'5',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'1',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'2',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'3',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'4',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'5',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'}
+                        ]};
+                }else if(pageNum == 25){
+                    var data={pages:25,pageSize:'10',pageNum:pageNum,list:[
+                            {id:'1',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'2',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'3',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'4',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'},
+                            {id:'5',status:'1',startTime:1543599000000,stopTime:1543787400000,timeConsuming:'2小时',objectCount:'222',okCount:'200',successRate:'100%'}
+                        ]};
+                }
+                pageTotal=data.pages;
+                showData(data)
+            }
+        })
+    };
+
+    $('#storeBtn').click(function(){
+        load(1)
+    });
+
+    $('#jump_btn').click(function(){
+        console.log($('#jump_input').val());
+        var reg=/^[1-9]\d*$/;
+        if(reg.test(Number($('#jump_input').val()))&&Number($('#jump_input').val())<=pageTotal){
+            load(Number($('#jump_input').val()))
+        }else{
+
+        }
+    })
+
+
+</script>
+</body>
+</html>

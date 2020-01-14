@@ -14,11 +14,8 @@ import java.util.Date;
  **/
 public class TkDrawVo {
     private Integer id;
-    private Integer userId;//抽奖人id
     private Integer prizeId;//对应奖项
-    private String drawId;//抽奖轮次(示例1-1,1-2）
-
-
+    private Integer activityId;//所属活动
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;//创建时间
@@ -26,6 +23,12 @@ public class TkDrawVo {
     private String prizeName;//奖品名称
     private String prize;//奖项名称
     private String prizeImage;//奖品图片
+    private String name;
+    private String account;
+    private Integer userId;//抽奖人id
+    private String groupId;
+    private Integer prizeCount;
+
 
     public Integer getId() {
         return id;
@@ -51,12 +54,12 @@ public class TkDrawVo {
         this.prizeId = prizeId;
     }
 
-    public String getDrawId() {
-        return drawId;
+    public Integer getActivityId() {
+        return activityId;
     }
 
-    public void setDrawId(String drawId) {
-        this.drawId = drawId;
+    public void setActivityId(Integer activityId) {
+        this.activityId = activityId;
     }
 
     public Date getCreateTime() {
@@ -97,5 +100,37 @@ public class TkDrawVo {
 
     public void setPrizeImage(String prizeImage) {
         this.prizeImage = prizeImage;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public Integer getPrizeCount() {
+        return prizeCount;
+    }
+
+    public void setPrizeCount(Integer prizeCount) {
+        this.prizeCount = prizeCount;
     }
 }
